@@ -1,7 +1,6 @@
 from huggingface_hub import snapshot_download, HfApi, upload_folder
 from os import environ, makedirs
 import os.path
-from shiertier_i18n import easy_i18n as i18n 
 from shiertier_tar import pack_directory_to_tarfile, create_index_from_tarfile
 
 __all__ = ['HuggingfaceClient', 'easy_huggingface_client']
@@ -16,7 +15,7 @@ class HuggingfaceClient:
     def login(self):
         # auto login, don't need to call login() before other functions
         if not self.token:
-            raise ValueError(i18n("huggingface token is not set"))
+            raise ValueError("huggingface token is not set")
         self.hf_client = HfApi(token=self.token)
     
     def download_model(self, url_or_repo, repo_type='repo', local_dir='./huggingface_models'):
@@ -28,7 +27,7 @@ class HuggingfaceClient:
         elif repo_type == "file":
             snapshot_download(repo_name, local_dir=local_dir, filename=file_path, force_download=True)
         else:
-            raise ValueError(i18n("repo_type must be 'repo' or 'file'"))
+            raise ValueError("repo_type must be 'repo' or 'file'")
 
     def convert_huggingface_url(self, url):
         url.replace('hf-mirror.com', 'huggingface.co')
@@ -44,17 +43,17 @@ class HuggingfaceClient:
             elif '/blob/main' in url_body:
                 repo, file_path = url_body.split('/blob/main')
             else:
-                raise ValueError(i18n("url is not valid"))
+                raise ValueError("url is not valid")
             return repo, file_path
         else:
-            raise ValueError(i18n("url is not valid"))
+            raise ValueError("url is not valid")
     
     def upload_dataset(self, local_dir, repo_name, tmp_dir='/root/.tmp'):
         self.login()
         tar_name_without_ext = os.path.basename(local_dir)
         for i in tar_name_without_ext:
             if i not in '0123456789':
-                raise ValueError(i18n("local_dir must end with four digits"))
+                raise ValueError("local_dir must end with four digits")
             
         archive_file_path = os.path.join(tmp_dir, 'huggingface_client', "images", f"{tar_name_without_ext}.tar")
         makedirs(os.path.dirname(archive_file_path), exist_ok=True)
