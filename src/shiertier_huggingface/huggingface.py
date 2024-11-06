@@ -63,7 +63,7 @@ class HuggingfaceClient:
         index_file_path = os.path.join(tmp_dir, 'huggingface_client', "index", f"{tar_name_without_ext}.json")
         makedirs(os.path.dirname(index_file_path), exist_ok=True)
         create_index_from_tarfile(archive_file_path, 
-                                  directory=os.path.dirname(index_file_path))
+                                  index_file_path=index_file_path)
 
         upload_folder(folder_path=os.path.join(tmp_dir, 'huggingface_client'),
                        path_in_repo=repo_name,
