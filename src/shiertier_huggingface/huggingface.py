@@ -68,6 +68,7 @@ class HuggingfaceClient:
         upload_folder(folder_path=os.path.join(tmp_dir, 'huggingface_client'),
                        path_in_repo=repo_name,
                        repo_id=repo_name,
+                       repo_type='dataset',
                        commit_message=f"Upload {tar_name_without_ext}",
                        token=self.token)
         
