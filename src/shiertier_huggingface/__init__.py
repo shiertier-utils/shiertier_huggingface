@@ -1,1 +1,1 @@
-from .modelscope import *
+from .huggingface import *
