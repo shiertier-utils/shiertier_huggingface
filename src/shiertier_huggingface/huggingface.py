@@ -2,6 +2,8 @@ from huggingface_hub import snapshot_download, HfApi, upload_folder
 from os import environ, makedirs
 import os.path
 from shiertier_tar import pack_directory_to_tarfile, create_index_from_tarfile
+from shiertier_logger import logger
+from time import sleep
 
 __all__ = ['HuggingfaceClient', 'easy_huggingface_client']
 
@@ -64,13 +66,23 @@ class HuggingfaceClient:
         makedirs(os.path.dirname(index_file_path), exist_ok=True)
         create_index_from_tarfile(archive_file_path, 
                                   index_file_path=index_file_path)
+                
+        def _easy_upload_dataset(self, tmp_dir, repo_name, tar_name_without_ext):
+            upload_folder(
+                folder_path=os.path.join(tmp_dir, 'huggingface_client'),
+                path_in_repo=".",
+                repo_id=repo_name,
+                repo_type='dataset',
+                commit_message=f"Upload {tar_name_without_ext}",
+                token=self.token
+            )
 
-        upload_folder(folder_path=os.path.join(tmp_dir, 'huggingface_client'),
-                       path_in_repo=".",
-                       repo_id=repo_name,
-                       repo_type='dataset',
-                       commit_message=f"Upload {tar_name_without_ext}",
-                       token=self.token)
+        try:
+            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext)
+        except Exception as e:
+            logger.error("Upload dataset failed: $$e$$", {"$$e$$": e})
+            sleep(300)
+            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext)
         
         from shutil import rmtree
         rmtree(os.path.join(tmp_dir, 'huggingface_client'))
