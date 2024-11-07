@@ -1,78 +1,122 @@
 # shiertier_huggingface
 
-[English](https://github.com/shiertier-utils/shiertier_huggingface/blob/main/README.md) | 中文
+中文 | [English](https://github.com/shiertier-utils/shiertier_huggingface/blob/main/README_en.md)
 
-## 简介
+## 1. 简介
 
-`shiertier_huggingface` 是一个 Python 库，旨在简化与 Hugging Face Hub 的交互。它提供了一组实用函数，用于下载模型、上传数据集和管理 Hugging Face 仓库。该库特别适用于在 Hugging Face 平台上管理机器学习模型和数据集。
+`shiertier_huggingface` 是一个用于与 Hugging Face 平台进行交互的 Python 工具库。它提供了下载模型和上传数据集的功能，简化了与 Hugging Face 平台的交互过程。
 
-## 安装
+## 2. 安装
 
-您可以通过 `pip` 安装 `shiertier_huggingface`：
+### 通过 pip 安装
 
 ```bash
 pip install shiertier_huggingface
 ```
 
-请注意，该项目仍在开发中。
+### 通过 git 安装（开发版）
 
-## 环境变量和直接使用 `easy_huggingface_client`
-
-### 环境变量
-
-- `HUGGINGFACE_TOKEN`: 用于与 Hugging Face Hub 进行身份验证的令牌。如果在初始化时未提供，客户端将尝试从该环境变量中检索。
-
-### 直接使用 `easy_huggingface_client`
-
-您可以直接使用 `easy_huggingface_client` 对象，而无需手动初始化 `HuggingfaceClient`。该对象会自动从环境变量中检索令牌。
-
-```python
-from shiertier_huggingface import easy_huggingface_client
-
-# 下载模型
-easy_huggingface_client.download_model(url_or_repo='https://huggingface.co/bert-base-uncased', repo_type='repo', local_dir='./huggingface_models')
-
-# 上传数据集
-easy_huggingface_client.upload_dataset(local_dir='path/to/local_dataset', repo_name='my_dataset_repo', tmp_dir='/root/.tmp')
+```bash
+pip install git+https://github.com/shiertier-utils/shiertier_huggingface.git
 ```
 
-## 使用方法
+## 3. 环境变量设置
 
-### 初始化
+在使用 `shiertier_huggingface` 之前，您需要设置一些环境变量。
+`HUGGINGFACE_TOKEN` 如果为 `None`，则仅可下载公开模型。
+`HF_HOME` 如果为 `None`，则默认是 `~/.cache/huggingface`。
+以下是如何在不同环境中设置环境变量的示例。
 
-要使用 `HuggingfaceClient`，您需要使用您的 Hugging Face 令牌进行初始化。如果在初始化时未提供令牌，它将尝试从 `HUGGINGFACE_TOKEN` 环境变量中检索。
+### Bash
 
-```python
-from shiertier_huggingface import HuggingfaceClient
-
-# 使用令牌初始化
-client = HuggingfaceClient(token='your_huggingface_token')
+```bash
+export HUGGINGFACE_TOKEN="your_huggingface_token"
+export HF_HOME="~/.cache/huggingface"
 ```
 
-### 下载模型
+### CMD
 
-您可以使用 `download_model` 方法从 Hugging Face Hub 下载模型。该方法允许您指定 URL 或仓库名称、仓库类型和本地目录，模型将保存在该目录中。
-
-```python
-# 下载模型
-client.download_model(url_or_repo='https://huggingface.co/bert-base-uncased', repo_type='repo', local_dir='./huggingface_models')
+```cmd
+set HUGGINGFACE_TOKEN=your_huggingface_token
+set HF_HOME=C:\Users\YourUsername\.cache\huggingface
 ```
 
-### 上传数据集
+### PowerShell
 
-您可以使用 `upload_dataset` 方法将数据集上传到 Hugging Face Hub。该方法允许您指定包含数据集的本地目录、仓库名称和可选的临时目录。
-
-```python
-# 上传数据集
-client.upload_dataset(local_dir='path/to/local_dataset', repo_name='my_dataset_repo', tmp_dir='/root/.tmp')
+```powershell
+$env:HUGGINGFACE_TOKEN = "your_huggingface_token"
+$env:HF_HOME = "C:\Users\YourUsername\.cache\huggingface"
 ```
 
-## 依赖
+### Python
+
+```python
+import os
+os.environ['HUGGINGFACE_TOKEN'] = "your_huggingface_token"
+os.environ['HF_HOME'] = "~/.cache/huggingface"
+```
+
+## 4. 函数用法与示例
+
+### 快速使用
+
+```python
+from shiertier_huggingface import ez_hf
+# 或者使用类
+# from shiertier_huggingface import HuggingfaceUtil
+# hf_util = HuggingfaceUtil(token="your_huggingface_token", hf_home="path/to/hf_home")
+
+# 下载模型仓库
+model_repo_dir = ez_hf.download_model("shiertier/model")
+# 或者使用url
+# model_repo_dir = ez_hf.download_model("https://huggingface.co/shiertier/model")
+
+# 下载模型文件, 传递的必须为url
+model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/file")
+# 如果需要下载到指定位置
+# model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/model.ckpt", local_dir="path/to/local/dir")
+# print(model_file_path)
+# -> "path/to/local/dir/model.ckpt"
+
+# 上传数据集，需要为四位数字字符串的目录
+# 需要导入shiertier_huggingface之前设置环境变量HUGGINFACE_TOKEN
+ez_hf.upload_dataset("path/to/local/dir/0000", "shiertier/dataset")
+# 或者直接传递token参数
+ez_hf.upload_dataset("path/to/local/dir/0000", "shiertier/dataset", token="your_huggingface_token")
+```
+
+### 详细函数介绍
+
+#### `download_model(url_or_repo, local_dir=None, token=None)`
+
+- `url_or_repo`: Hugging Face 模型 URL 或仓库名称。
+- `local_dir`: 本地目录，默认为 `None`，如果为 `None`，则使用 `HF_HOME`。
+- `token`: Hugging Face 令牌，默认为 `None`，如果为 `None`，则使用环境变量 `HUGGINGFACE_TOKEN`。
+
+#### `upload_dataset(local_dir, repo_name, commit_message=None, token=None)`
+
+- `local_dir`: 要上传的本地目录，必须是四位数字。
+- `repo_name`: 上传到的仓库名称。
+- `commit_message`: 提交信息，默认为 `None`，如果为 `None`，则使用 `'Upload {tar_name_without_ext}'`。
+- `token`: Hugging Face 令牌，默认为 `None`，如果为 `None`，则使用环境变量 `HUGGINGFACE_TOKEN`。
+
+### 帮助
+
+您可以通过以下方式获取帮助信息：
+
+```python
+from shiertier_huggingface import ez_hf
+
+ez_hf.help()  # 获取英文帮助
+ez_hf.help_zh()  # 获取中文帮助
+```
+
+## 5. 依赖
 
 - `huggingface_hub`
-- `shiertier_i18n`
 - `shiertier_tar`
+- `shiertier_logger`
 
-## 许可证
+## 6. 许可证
 
-本项目基于 MIT 许可证发布。有关详细信息，请参阅 [LICENSE](LICENSE) 文件。
+本项目采用 [MIT 许可证](https://github.com/shiertier-utils/shiertier_huggingface/blob/main/LICENSE)。
