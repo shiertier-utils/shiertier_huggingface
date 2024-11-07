@@ -72,7 +72,7 @@ model_repo_dir = ez_hf.download_model("shiertier/model")
 # model_repo_dir = ez_hf.download_model("https://huggingface.co/shiertier/model")
 
 # Download model file, the passed parameter must be a URL
-model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/file")
+model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/model.ckpt")
 # If you need to download to a specified location
 # model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/model.ckpt", local_dir="path/to/local/dir")
 # print(model_file_path)
@@ -107,8 +107,8 @@ You can get help information by:
 ```python
 from shiertier_huggingface import ez_hf
 
-ez_hf.help()  # Get English help
-ez_hf.help_zh()  # Get Chinese help
+ez_hf.help  # Get English help
+ez_hf.help_zh  # Get Chinese help
 ```
 
 ## 5. Dependencies

@@ -44,6 +44,7 @@ class HuggingfaceUtil:
         for line in help[1:-1].split('\n'):
             print(line.replace('        ', '', 1))
 
+    @property
     def help_zh(self):
         help_zh = """
         环境变量:
