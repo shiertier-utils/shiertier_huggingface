@@ -72,7 +72,7 @@ model_repo_dir = ez_hf.download_model("shiertier/model")
 # model_repo_dir = ez_hf.download_model("https://huggingface.co/shiertier/model")
 
 # 下载模型文件, 传递的必须为url
-model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/file")
+model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/model.ckpt")
 # 如果需要下载到指定位置
 # model_file_path = ez_hf.download_model("https://huggingface.co/shiertier/model/resolve/main/model.ckpt", local_dir="path/to/local/dir")
 # print(model_file_path)
