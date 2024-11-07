@@ -1,11 +1,11 @@
-from huggingface_hub import snapshot_download, HfApi, upload_folder
+from huggingface_hub import snapshot_download, upload_folder
 from os import environ, makedirs
 import os.path
 from shiertier_tar import pack_directory_to_tarfile, create_index_from_tarfile
 from shiertier_logger import logger
 from time import sleep
 
-__all__ = ['HuggingfaceUtil', 'easy_huggingface']
+__all__ = ['HuggingfaceUtil', 'ez_hf']
 
 class HuggingfaceUtil:
 
@@ -21,15 +21,15 @@ class HuggingfaceUtil:
                 temporary directory for huggingface, default is ~/.cache/huggingface
         
         functions:
-            download_model(url_or_repo, repo_type='repo', local_dir=None, token=None)
+            download_model(url_or_repo, local_dir=None, token=None) -> str | None
                 url_or_repo: str
                     it can be a huggingface model url or a repo name
-                repo_type: str
-                    it can be 'repo' or 'file', default is 'repo'
                 local_dir: str | None
                     local directory, default is None, if None, it will be HF_HOME
                 token: str | None
                     huggingface token, default is None
+            return: str
+                local directory or file path
 
             upload_dataset(local_dir, repo_name, commit_message=None, token=None)
                 local_dir: str
@@ -53,15 +53,15 @@ class HuggingfaceUtil:
                 huggingface临时目录, 默认~/.cache/huggingface
         
         函数:
-            download_model(url_or_repo, repo_type='repo', local_dir=None, token=None)
+            download_model(url_or_repo, local_dir=None, token=None) -> str | None
                 url_or_repo: str
                     huggingface模型url或repo名
-                repo_type: str
-                    需要下载的文件类型, 默认'repo', 可选'file'
                 local_dir: str | None
                     本地目录, 默认None, 如果为None, 则使用HF_HOME
                 token: str | None
                     huggingface token, 默认None, 如果为None, 则使用环境变量HUGGINGFACE_TOKEN
+            return: str
+                下载到的本地目录或文件路径
 
             upload_dataset(local_dir, repo_name, commit_message=None, token=None)
                 local_dir: str
@@ -78,13 +78,16 @@ class HuggingfaceUtil:
 
     def __init__(self, 
                  token: str | None = None, 
-                 tmp_dir: str | None = None):
+                 hf_home: str | None = None):
         if token is None:
             token = environ.get('HUGGINGFACE_TOKEN')
-        if tmp_dir is None:
-            tmp_dir = environ.get('HF_HOME', os.path.join(os.path.expanduser('~'), '.cache', 'huggingface'))
+        if hf_home is None:
+            hf_home = environ.get('HF_HOME', 
+                                  os.path.join(os.path.expanduser('~'), 
+                                               '.cache', 
+                                               'huggingface'))
         self.token = token
-        self.tmp_dir = tmp_dir
+        self.hf_home = hf_home
 
     def convert_huggingface_url_to_repo_name_and_file_path(self, 
                                                            url: str) -> tuple[str, str | None]:
@@ -108,21 +111,32 @@ class HuggingfaceUtil:
     
     def download_model(self, 
                        url_or_repo: str, 
-                       repo_type: str = 'repo', 
                        local_dir: str | None = None, 
-                       token: str | None = None):
+                       token: str | None = None) -> str | None:
         if local_dir is None:
-            local_dir = self.tmp_dir
+            local_dir = self.hf_home
+
         if token is None:
             token = self.token
-        if repo_type not in ['repo', 'file']:
-            raise ValueError("repo_type must be 'repo' or 'file'")
-        repo_name,file_path = self.convert_huggingface_url_to_repo_name_and_file_path(url_or_repo)
-        local_dir = os.path.join(local_dir, os.path.basename(repo_name))
-        if repo_type == 'repo':
-            snapshot_download(repo_name, local_dir=local_dir, force_download=True,local_dir_use_symlinks=False, token=token)
-        elif repo_type == 'file':
-            snapshot_download(repo_name, local_dir=local_dir, filename=file_path, force_download=True, token=token)
+
+        repo_name, file_path = self.convert_huggingface_url_to_repo_name_and_file_path(url_or_repo)
+
+        if repo_name and not file_path:
+            local_dir = os.path.join(local_dir, os.path.basename(repo_name))
+            return snapshot_download(repo_name, 
+                              local_dir=local_dir, 
+                              force_download=False, 
+                              local_dir_use_symlinks=False, 
+                                     token=token)
+        elif repo_name and file_path:
+            local_dir = os.path.join(local_dir, os.path.basename(file_path))
+            return snapshot_download(repo_name, 
+                                     local_dir=local_dir, 
+                                     filename=file_path, 
+                                     force_download=False, 
+                                     token=token)
+        else:
+            raise ValueError("url_or_repo is not valid")
 
     def upload_dataset(self, 
                         local_dir: str, 
@@ -132,8 +146,8 @@ class HuggingfaceUtil:
         if token is None:
             token = self.token
 
-        if tmp_dir is None:
-            tmp_dir = self.tmp_dir
+        if hf_home is None:
+            hf_home = self.hf_home
 
         if token is None:
             raise ValueError("environment variable HUGGINGFACE_TOKEN is not set, and function argument token is not provided")
@@ -145,22 +159,33 @@ class HuggingfaceUtil:
         if len(tar_name_without_ext) != 4:
             raise ValueError("local_dir must end with four digits")
         
-        archive_file_path = os.path.join(tmp_dir, 'shiertier_huggingface_client', "images", f"{tar_name_without_ext}.tar")
-        makedirs(os.path.dirname(archive_file_path), exist_ok=True)
+        archive_file_path = os.path.join(hf_home, 
+                                         'shiertier_huggingface_client', 
+                                         "images", 
+                                         f"{tar_name_without_ext}.tar")
+        makedirs(os.path.dirname(archive_file_path), 
+                 exist_ok=True)
         pack_directory_to_tarfile(src_directory=local_dir,
                                 archive_file=archive_file_path)
         
-        index_file_path = os.path.join(tmp_dir, 'shiertier_huggingface_client', "index", f"{tar_name_without_ext}.json")
-        makedirs(os.path.dirname(index_file_path), exist_ok=True)
+        index_file_path = os.path.join(hf_home, 
+                                       'shiertier_huggingface_client', 
+                                       "index", 
+                                       f"{tar_name_without_ext}.json")
+        makedirs(os.path.dirname(index_file_path), 
+                 exist_ok=True)
         create_index_from_tarfile(archive_file_path, 
                                 index_file_path=index_file_path)
         
-        def easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, commit_message=None):
+        def easy_upload_dataset(hf_home, 
+                                repo_name, 
+                                tar_name_without_ext, 
+                                commit_message=None):
             try:    
                 if commit_message is None:
                     commit_message = f"Upload {tar_name_without_ext}"
                 upload_folder(
-                    folder_path=os.path.join(tmp_dir, 'shiertier_huggingface_client'),
+                    folder_path=os.path.join(hf_home, 'shiertier_huggingface_client'),
                     path_in_repo=".",
                     repo_id=repo_name,
                     repo_type='dataset',
@@ -170,11 +195,17 @@ class HuggingfaceUtil:
             except Exception as e:
                 logger.error(f"Upload dataset failed: {e}")
                 sleep(300)
-                easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, commit_message)
+                easy_upload_dataset(hf_home, 
+                                    repo_name, 
+                                    tar_name_without_ext, 
+                                    commit_message)
 
-        easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, commit_message)
+        easy_upload_dataset(hf_home, 
+                            repo_name, 
+                            tar_name_without_ext, 
+                            commit_message)
         
         from shutil import rmtree
-        rmtree(os.path.join(tmp_dir, 'shiertier_huggingface_client'))
+        rmtree(os.path.join(hf_home, 'shiertier_huggingface_client'))
 
-easy_hf = HuggingfaceUtil()
+ez_hf = HuggingfaceUtil()

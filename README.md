@@ -1,78 +1,78 @@
 # shiertier_huggingface
 
-English | [中文](https://github.com/shiertier-utils/shiertier_huggingface/blob/main/README_zh.md)
+[English](https://github.com/shiertier-utils/shiertier_huggingface/blob/main/README.md) | 中文
 
-## Introduction
+## 简介
 
-`shiertier_huggingface` is a Python library designed to simplify interactions with the Hugging Face Hub. It provides a set of utility functions to download models, upload datasets, and manage Hugging Face repositories. This library is particularly useful for managing machine learning models and datasets on the Hugging Face platform.
+`shiertier_huggingface` 是一个 Python 库，旨在简化与 Hugging Face Hub 的交互。它提供了一组实用函数，用于下载模型、上传数据集和管理 Hugging Face 仓库。该库特别适用于在 Hugging Face 平台上管理机器学习模型和数据集。
 
-## Installation
+## 安装
 
-You can install `shiertier_huggingface` via `pip`:
+您可以通过 `pip` 安装 `shiertier_huggingface`：
 
 ```bash
 pip install shiertier_huggingface
 ```
 
-Please note that this project is still under development.
+请注意，该项目仍在开发中。
 
-## Environment Variables and Direct Usage of `easy_huggingface_client`
+## 环境变量和直接使用 `easy_huggingface_client`
 
-### Environment Variables
+### 环境变量
 
-- `HUGGINGFACE_TOKEN`: The token used for authentication with the Hugging Face Hub. If not provided during initialization, the client will attempt to retrieve it from this environment variable.
+- `HUGGINGFACE_TOKEN`: 用于与 Hugging Face Hub 进行身份验证的令牌。如果在初始化时未提供，客户端将尝试从该环境变量中检索。
 
-### Direct Usage of `easy_huggingface_client`
+### 直接使用 `easy_huggingface_client`
 
-You can directly use the `easy_huggingface_client` object without manually initializing the `HuggingfaceClient`. This object will automatically retrieve the token from the environment variable.
+您可以直接使用 `easy_huggingface_client` 对象，而无需手动初始化 `HuggingfaceClient`。该对象会自动从环境变量中检索令牌。
 
 ```python
 from shiertier_huggingface import easy_huggingface_client
 
-# Download a model
+# 下载模型
 easy_huggingface_client.download_model(url_or_repo='https://huggingface.co/bert-base-uncased', repo_type='repo', local_dir='./huggingface_models')
 
-# Upload a dataset
+# 上传数据集
 easy_huggingface_client.upload_dataset(local_dir='path/to/local_dataset', repo_name='my_dataset_repo', tmp_dir='/root/.tmp')
 ```
 
-## Usage
+## 使用方法
 
-### Initialization
+### 初始化
 
-To use the `HuggingfaceClient`, you need to initialize it with your Hugging Face token. If the token is not provided during initialization, it will attempt to retrieve it from the `HUGGINGFACE_TOKEN` environment variable.
+要使用 `HuggingfaceClient`，您需要使用您的 Hugging Face 令牌进行初始化。如果在初始化时未提供令牌，它将尝试从 `HUGGINGFACE_TOKEN` 环境变量中检索。
 
 ```python
 from shiertier_huggingface import HuggingfaceClient
 
-# Initialize with a token
+# 使用令牌初始化
 client = HuggingfaceClient(token='your_huggingface_token')
 ```
 
-### Downloading a Model
+### 下载模型
 
-You can download a model from the Hugging Face Hub using the `download_model` method. This method allows you to specify the URL or repository name, the repository type, and the local directory where the model will be saved.
+您可以使用 `download_model` 方法从 Hugging Face Hub 下载模型。该方法允许您指定 URL 或仓库名称、仓库类型和本地目录，模型将保存在该目录中。
 
 ```python
-# Download a model
+# 下载模型
 client.download_model(url_or_repo='https://huggingface.co/bert-base-uncased', repo_type='repo', local_dir='./huggingface_models')
 ```
 
-### Uploading a Dataset
+### 上传数据集
 
-You can upload a dataset to the Hugging Face Hub using the `upload_dataset` method. This method allows you to specify the local directory containing the dataset, the repository name, and an optional temporary directory.
+您可以使用 `upload_dataset` 方法将数据集上传到 Hugging Face Hub。该方法允许您指定包含数据集的本地目录、仓库名称和可选的临时目录。
 
 ```python
-# Upload a dataset
+# 上传数据集
 client.upload_dataset(local_dir='path/to/local_dataset', repo_name='my_dataset_repo', tmp_dir='/root/.tmp')
 ```
 
-## Dependencies
+## 依赖
 
 - `huggingface_hub`
 - `shiertier_i18n`
 - `shiertier_tar`
 
-## License
+## 许可证
 
-This project is released under the MIT License. See the [LICENSE](LICENSE) file for details.
+本项目基于 MIT 许可证发布。有关详细信息，请参阅 [LICENSE](LICENSE) 文件。
