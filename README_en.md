@@ -23,8 +23,11 @@ pip install git+https://github.com/shiertier-utils/shiertier_huggingface.git
 ## 3. Environment Variables Setup
 
 Before using `shiertier_huggingface`, you need to set some environment variables.
+
 `HUGGINGFACE_TOKEN` is required if you want to download private models or upload datasets.
+
 `HF_HOME` is optional; if not set, it defaults to `~/.cache/huggingface`.
+
 Here are examples of how to set environment variables in different environments.
 
 ### Bash

@@ -23,8 +23,11 @@ pip install git+https://github.com/shiertier-utils/shiertier_huggingface.git
 ## 3. 环境变量设置
 
 在使用 `shiertier_huggingface` 之前，您需要设置一些环境变量。
+
 `HUGGINGFACE_TOKEN` 如果为 `None`，则仅可下载公开模型。
+
 `HF_HOME` 如果为 `None`，则默认是 `~/.cache/huggingface`。
+
 以下是如何在不同环境中设置环境变量的示例。
 
 ### Bash
