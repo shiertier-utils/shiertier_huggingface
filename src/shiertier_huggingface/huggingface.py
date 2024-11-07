@@ -17,7 +17,7 @@ class HuggingfaceUtil:
         environment variables:
             HUGGINGFACE_TOKEN: 
                 huggingface token, default is None
-            HUGGINGFACE_TMPDIR: 
+            HF_HOME: 
                 temporary directory for huggingface, default is ~/.cache/huggingface
         
         functions:
@@ -27,7 +27,7 @@ class HuggingfaceUtil:
                 repo_type: str
                     it can be 'repo' or 'file', default is 'repo'
                 local_dir: str | None
-                    local directory, default is None, if None, it will be HUGGINGFACE_TMPDIR
+                    local directory, default is None, if None, it will be HF_HOME
                 token: str | None
                     huggingface token, default is None
 
@@ -49,7 +49,7 @@ class HuggingfaceUtil:
         环境变量:
             HUGGINGFACE_TOKEN: 
                 huggingface token, 默认 None
-            HUGGINGFACE_TMPDIR: 
+            HF_HOME: 
                 huggingface临时目录, 默认~/.cache/huggingface
         
         函数:
@@ -59,7 +59,7 @@ class HuggingfaceUtil:
                 repo_type: str
                     需要下载的文件类型, 默认'repo', 可选'file'
                 local_dir: str | None
-                    本地目录, 默认None, 如果为None, 则使用HUGGINGFACE_TMPDIR
+                    本地目录, 默认None, 如果为None, 则使用HF_HOME
                 token: str | None
                     huggingface token, 默认None, 如果为None, 则使用环境变量HUGGINGFACE_TOKEN
 
@@ -82,7 +82,7 @@ class HuggingfaceUtil:
         if token is None:
             token = environ.get('HUGGINGFACE_TOKEN')
         if tmp_dir is None:
-            tmp_dir = environ.get('HUGGINGFACE_TMPDIR', os.path.join(os.path.expanduser('~'), '.cache', 'huggingface'))
+            tmp_dir = environ.get('HF_HOME', os.path.join(os.path.expanduser('~'), '.cache', 'huggingface'))
         self.token = token
         self.tmp_dir = tmp_dir
 
