@@ -9,10 +9,10 @@ __all__ = ['HuggingfaceUtil', 'easy_huggingface']
 
 class HuggingfaceUtil:
 
-    creator = "shiertier"
+    author = "shiertier"
 
     @property
-    def help(self) -> str:
+    def help(self):
         help = """
         environment variables:
             HUGGINGFACE_TOKEN: 
@@ -41,7 +41,40 @@ class HuggingfaceUtil:
                 token: str | None
                     huggingface token, default is None
         """
-        print(help)
+        for line in help[1:-1].split('\n'):
+            print(line.replace('        ', '', 1))
+
+    def help_zh(self):
+        help_zh = """
+        环境变量:
+            HUGGINGFACE_TOKEN: 
+                huggingface token, 默认 None
+            HUGGINGFACE_TMPDIR: 
+                huggingface临时目录, 默认~/.cache/huggingface
+        
+        函数:
+            download_model(url_or_repo, repo_type='repo', local_dir=None, token=None)
+                url_or_repo: str
+                    huggingface模型url或repo名
+                repo_type: str
+                    需要下载的文件类型, 默认'repo', 可选'file'
+                local_dir: str | None
+                    本地目录, 默认None, 如果为None, 则使用HUGGINGFACE_TMPDIR
+                token: str | None
+                    huggingface token, 默认None, 如果为None, 则使用环境变量HUGGINGFACE_TOKEN
+
+            upload_dataset(local_dir, repo_name, commit_message=None, token=None)
+                local_dir: str
+                    要上传的本地目录, 必须是四位数字
+                repo_name: str
+                    上传到的repo仓库
+                commit_message: str | None
+                    提交信息, 默认None, 如果为None, 则使用'Upload {tar_name_without_ext}'
+                token: str | None
+                    huggingface token, 默认None, 如果为None, 则使用环境变量HUGGINGFACE_TOKEN
+        """
+        for line in help_zh[1:-1].split('\n'):
+            print(line.replace('        ', '', 1))
 
     def __init__(self, 
                  token: str | None = None, 
