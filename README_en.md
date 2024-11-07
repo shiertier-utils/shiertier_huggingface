@@ -96,12 +96,13 @@ ez_hf.upload_dataset("path/to/local/dir/0000", "shiertier/dataset", token="your_
 - `local_dir`: Local directory, defaults to `None`. If `None`, it uses `HF_HOME`.
 - `token`: Hugging Face token, defaults to `None`. If `None`, it uses the environment variable `HUGGINGFACE_TOKEN`.
 
-#### `upload_dataset(local_dir, repo_name, commit_message=None, token=None)`
+#### `upload_dataset(local_dir, repo_name, commit_message=None, token=None, hf_home=None)`
 
 - `local_dir`: Local directory to upload, must be a four-digit string.
 - `repo_name`: Repository name to upload to.
 - `commit_message`: Commit message, defaults to `None`. If `None`, it uses `'Upload {tar_name_without_ext}'`.
 - `token`: Hugging Face token, defaults to `None`. If `None`, it uses the environment variable `HUGGINGFACE_TOKEN`.
+- `hf_home`: Hugging Face temporary directory, defaults to `None`. If `None`, it uses the environment variable `HF_HOME`.
 
 ### Help
 

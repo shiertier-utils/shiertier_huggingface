@@ -143,7 +143,8 @@ class HuggingfaceUtil:
                         local_dir: str, 
                         repo_name: str, 
                         commit_message: str | None = None, 
-                        token: str | None = None):
+                        token: str | None = None,
+                        hf_home: str | None = None):
         if token is None:
             token = self.token
 

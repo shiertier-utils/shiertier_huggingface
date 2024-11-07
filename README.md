@@ -96,13 +96,13 @@ ez_hf.upload_dataset("path/to/local/dir/0000", "shiertier/dataset", token="your_
 - `local_dir`: 本地目录，默认为 `None`，如果为 `None`，则使用 `HF_HOME`。
 - `token`: Hugging Face 令牌，默认为 `None`，如果为 `None`，则使用环境变量 `HUGGINGFACE_TOKEN`。
 
-#### `upload_dataset(local_dir, repo_name, commit_message=None, token=None)`
+#### `upload_dataset(local_dir, repo_name, commit_message=None, token=None, hf_home=None)`
 
 - `local_dir`: 要上传的本地目录，必须是四位数字。
 - `repo_name`: 上传到的仓库名称。
 - `commit_message`: 提交信息，默认为 `None`，如果为 `None`，则使用 `'Upload {tar_name_without_ext}'`。
 - `token`: Hugging Face 令牌，默认为 `None`，如果为 `None`，则使用环境变量 `HUGGINGFACE_TOKEN`。
-
+- `hf_home`: Hugging Face 临时目录，默认为 `None`，如果为 `None`，则使用环境变量 `HF_HOME`。
 ### 帮助
 
 您可以通过以下方式获取帮助信息：
