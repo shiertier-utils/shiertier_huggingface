@@ -67,22 +67,21 @@ class HuggingfaceClient:
         create_index_from_tarfile(archive_file_path, 
                                   index_file_path=index_file_path)
                 
-        def _easy_upload_dataset(self, tmp_dir, repo_name, tar_name_without_ext):
-            upload_folder(
-                folder_path=os.path.join(tmp_dir, 'huggingface_client'),
+        def _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, token):
+            upload_folder(folder_path=os.path.join(tmp_dir, 'huggingface_client'),
                 path_in_repo=".",
                 repo_id=repo_name,
                 repo_type='dataset',
                 commit_message=f"Upload {tar_name_without_ext}",
-                token=self.token
+                token=token
             )
 
         try:
-            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext)
+            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, self.token)
         except Exception as e:
             logger.error("Upload dataset failed: $$e$$", {"$$e$$": e})
             sleep(300)
-            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext)
+            _easy_upload_dataset(tmp_dir, repo_name, tar_name_without_ext, self.token)
         
         from shutil import rmtree
         rmtree(os.path.join(tmp_dir, 'huggingface_client'))
