@@ -107,8 +107,8 @@ ez_hf.upload_dataset("path/to/local/dir/0000", "shiertier/dataset", token="your_
 ```python
 from shiertier_huggingface import ez_hf
 
-ez_hf.help()  # 获取英文帮助
-ez_hf.help_zh()  # 获取中文帮助
+ez_hf.help  # 获取英文帮助
+ez_hf.help_zh  # 获取中文帮助
 ```
 
 ## 5. 依赖
