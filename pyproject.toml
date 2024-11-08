@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "shiertier_huggingface"
-version = "0.1.5"
+version = "0.1.7"
 description = "A simple huggingface client for Python."
 readme = "README.md"
 requires-python = ">=3.7"
@@ -24,7 +24,11 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["huggingface_hub", "shiertier_tar", "shiertier_i18n"]
+dependencies = [
+    "huggingface_hub", 
+    "shiertier_tar", 
+    "shiertier_logger"
+]
 
 [tool.setuptools]
 packages = {find = {where = ["src"]}}

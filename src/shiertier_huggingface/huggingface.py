@@ -77,26 +77,24 @@ class HuggingfaceUtil:
         for line in help_zh[1:-1].split('\n'):
             print(line.replace('        ', '', 1))
 
-    def __init__(self, 
-                 token: str | None = None, 
-                 hf_home: str | None = None):
-        if token is None:
-            token = environ.get('HUGGINGFACE_TOKEN')
-        if hf_home is None:
-            hf_home = environ.get('HF_HOME', 
-                                  os.path.join(os.path.expanduser('~'), 
-                                               '.cache', 
-                                               'huggingface'))
-        self.token = token
-        self.hf_home = hf_home
+    def __init__(
+        self, 
+        token: str | None = None, 
+        hf_home: str | None = None
+    ):
+        self.token = token or environ.get('HUGGINGFACE_TOKEN')
+        default_hf_home = os.path.join(os.path.expanduser('~'), '.cache', 'huggingface')
+        self.hf_home = hf_home or default_hf_home
 
-    def convert_huggingface_url_to_repo_name_and_file_path(self, 
-                                                           url: str) -> tuple[str, str | None]:
-        url.replace('hf-mirror.com', 'huggingface.co')
+    def convert_huggingface_url_to_repo_name_and_file_path(
+        self, 
+        url: str
+    ) -> tuple[str, str | None]:
+        url = url.replace('hf-mirror.com', 'huggingface.co')
         if url.count('/') == 1:
             return url, None
         elif url.startswith('https://huggingface.co') and url.count('/') == 4:
-            return url.splite('.co/')[1] , None
+            return url.split('.co/')[1], None
         elif url.startswith('https://huggingface.co') and url.count('/') > 4:
             url = url.replace('?download=true', '')
             url_body = url.split('.co/')[1]
@@ -110,10 +108,12 @@ class HuggingfaceUtil:
         else:
             raise ValueError("url is not valid")
     
-    def download_model(self, 
-                       url_or_repo: str, 
-                       local_dir: str | None = None, 
-                       token: str | None = None) -> str | None:
+    def download_model(
+        self, 
+        url_or_repo: str, 
+        local_dir: str | None = None, 
+        token: str | None = None
+    ) -> str | None:
         if local_dir is None:
             local_dir = self.hf_home
 
@@ -124,27 +124,51 @@ class HuggingfaceUtil:
 
         if repo_name and not file_path:
             local_dir = os.path.join(local_dir, os.path.basename(repo_name))
-            return snapshot_download(repo_name, 
-                              local_dir=local_dir, 
-                              force_download=False, 
-                              local_dir_use_symlinks=False, 
-                                     token=token)
+            return snapshot_download(
+                repo_name, 
+                local_dir=local_dir, 
+                force_download=False, 
+                local_dir_use_symlinks=False, 
+                token=token
+            )
+
         elif repo_name and file_path:
             local_dir = os.path.join(local_dir, os.path.basename(file_path))
-            return snapshot_download(repo_name, 
-                                     local_dir=local_dir, 
-                                     filename=file_path, 
-                                     force_download=False, 
-                                     token=token)
+            return snapshot_download(
+                repo_name, 
+                local_dir=local_dir, 
+                filename=file_path, 
+                force_download=False, 
+                token=token
+            )
         else:
             raise ValueError("url_or_repo is not valid")
 
-    def upload_dataset(self, 
-                        local_dir: str, 
-                        repo_name: str, 
-                        commit_message: str | None = None, 
-                        token: str | None = None,
-                        hf_home: str | None = None):
+    def upload_dataset(
+        self, 
+        local_dir: str, 
+        repo_name: str, 
+        commit_message: str | None = None, 
+        token: str | None = None,
+        hf_home: str | None = None
+    ) -> None:
+        """upload_dataset to huggingface
+
+        Args:
+            local_dir: str
+                local directory path, must end with four digits
+            repo_name: str
+                target repo name
+            commit_message: str | None
+                commit message, default is None, if None, it will be 'Upload {tar_name_without_ext}'
+            token: str | None
+                huggingface token, default is None, if None, it will be environment variable HUGGINGFACE_TOKEN
+            hf_home: str | None
+                huggingface cache directory, default is None, if None, it will be ~/.cache/huggingface
+
+        Raises:
+            ValueError: when token is not set or local_dir is not valid
+        """
         if token is None:
             token = self.token
 
@@ -155,34 +179,56 @@ class HuggingfaceUtil:
             raise ValueError("environment variable HUGGINGFACE_TOKEN is not set, and function argument token is not provided")
         
         tar_name_without_ext = os.path.basename(local_dir)
-        for i in tar_name_without_ext:
-            if i not in '0123456789':
-                raise ValueError("local_dir must end with four digits")
-        if len(tar_name_without_ext) != 4:
+        if not tar_name_without_ext.isdigit() or len(tar_name_without_ext) != 4:
             raise ValueError("local_dir must end with four digits")
         
-        archive_file_path = os.path.join(hf_home, 
-                                         'shiertier_huggingface_client', 
-                                         "images", 
-                                         f"{tar_name_without_ext}.tar")
-        makedirs(os.path.dirname(archive_file_path), 
-                 exist_ok=True)
-        pack_directory_to_tarfile(src_directory=local_dir,
-                                archive_file=archive_file_path)
+        archive_file_path = os.path.join(
+                                hf_home, 
+                                'shiertier_huggingface_client', 
+                                "images", 
+                                f"{tar_name_without_ext}.tar"
+                            )
+        makedirs(os.path.dirname(archive_file_path), exist_ok=True)
+        pack_directory_to_tarfile(src_directory=local_dir, archive_file=archive_file_path)
         
-        index_file_path = os.path.join(hf_home, 
-                                       'shiertier_huggingface_client', 
-                                       "index", 
-                                       f"{tar_name_without_ext}.json")
-        makedirs(os.path.dirname(index_file_path), 
-                 exist_ok=True)
-        create_index_from_tarfile(archive_file_path, 
-                                index_file_path=index_file_path)
+        index_file_path = os.path.join(
+            hf_home, 
+            'shiertier_huggingface_client', 
+            "index", 
+            f"{tar_name_without_ext}.json"
+        )
+
+        makedirs(os.path.dirname(index_file_path), exist_ok=True)
+        create_index_from_tarfile(
+            archive_file_path, 
+            index_file_path=index_file_path
+        )
         
-        def easy_upload_dataset(hf_home, 
-                                repo_name, 
-                                tar_name_without_ext, 
-                                commit_message=None):
+        def _retry_upload_dataset(
+            hf_home: str, 
+            repo_name: str, 
+            tar_name_without_ext: str, 
+            commit_message: str | None = None,
+            token: str | None = None,
+            max_retries: int = 3,
+            retry_delay: int = 300
+        ) -> None:
+            """retry upload dataset to huggingface
+
+            Args:
+                hf_home: str
+                    huggingface cache directory
+                repo_name: str
+                    target repo name
+                tar_name_without_ext: str
+                    tar file name without extension
+                commit_message: str | None
+                    commit message, default is None, if None, it will be 'Upload {tar_name_without_ext}'
+                max_retries: int
+                    max retries, default is 3
+                retry_delay: int
+                    retry delay, default is 300 seconds
+            """
             try:    
                 if commit_message is None:
                     commit_message = f"Upload {tar_name_without_ext}"
@@ -195,17 +241,27 @@ class HuggingfaceUtil:
                     token=token
                 )
             except Exception as e:
-                logger.error(f"Upload dataset failed: {e}")
-                sleep(300)
-                easy_upload_dataset(hf_home, 
-                                    repo_name, 
-                                    tar_name_without_ext, 
-                                    commit_message)
+                logger.error(f"upload dataset failed: {e}")
+                if max_retries > 0:
+                    sleep(retry_delay)
+                    self._retry_upload_dataset(
+                        hf_home,
+                        repo_name,
+                        tar_name_without_ext,
+                        commit_message,
+                        token,
+                        max_retries - 1
+                    )
+                else:
+                    raise
 
-        easy_upload_dataset(hf_home, 
-                            repo_name, 
-                            tar_name_without_ext, 
-                            commit_message)
+        _retry_upload_dataset(
+            hf_home, 
+            repo_name, 
+            tar_name_without_ext, 
+            commit_message,
+            token
+        )
         
         from shutil import rmtree
         rmtree(os.path.join(hf_home, 'shiertier_huggingface_client'))
